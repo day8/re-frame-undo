@@ -1,4 +1,4 @@
-(ns day8.re-frame.undo-test
+(ns day8.re-frame.undo.undo-test
   (:require [cljs.test          :refer-macros [is deftest]]
             [day8.re-frame.undo :as undo]
             [re-frame.db        :as db]
