@@ -3,16 +3,11 @@
 [![Clojars Project](https://img.shields.io/clojars/v/day8.re-frame/undo.svg)](https://clojars.org/day8.re-frame/undo)
 [![GitHub license](https://img.shields.io/github/license/Day8/re-frame-undo.svg)](license.txt)
 [![Circle CI](https://circleci.com/gh/Day8/re-frame-undo/tree/master.svg?style=shield&circle-token=:circle-ci-badge-token)](https://circleci.com/gh/Day8/re-frame-undo/tree/master)
-[![Circle CI](https://circleci.com/gh/Day8/re-frame-undo/tree/develop.svg?style=shield&circle-token=:circle-ci-badge-token)](https://circleci.com/gh/Day8/re-frame-undo/tree/develop)
-<!--
-[![Sample Project](https://img.shields.io/badge/project-example-ff69b4.svg)](https://github.com/Day8/re-frame-undo/sample)
--->
+
 
 ## Undos in re-frame
 
 Herein a re-frame library which implements undo
-
-https://github.com/Day8/re-frame/wiki/Undo-&-Red
 
 ## Quick Start Guide
 
@@ -21,7 +16,7 @@ https://github.com/Day8/re-frame/wiki/Undo-&-Red
 Add the following project dependency:
 [![Clojars Project](https://img.shields.io/clojars/v/day8.re-frame/undo.svg)](https://clojars.org/day8.re-frame/undo)
 
-This library contains an undo/redo facility for [![Clojars Project](https://img.shields.io/clojars/v/re-frame)](https://clojars.org/re-frame).
+This library contains an undo/redo facility for [![Clojars Project](https://img.shields.io/clojars/v/re-frame.svg)](https://clojars.org/re-frame).
 
 ### On Mutations And Undoing
 
@@ -46,7 +41,7 @@ So, in summary, to create an undoable event:
 
 ### Won't that Be Expensive?
 
-Won't "saving copies of `app-db`" take a lot of RAM?  If the user has performed 50 undoable actions,  I'd need 50 copies of app-db saved away! Yikkes.
+Won't saving copies of `app-db` take a lot of RAM?  If the user has performed 50 undoable actions,  I'd need 50 copies of app-db saved away! Yikkes.
 
 This is unlikely to be a problem.  The value in `app-db` is a map, which is an immutable data structure. When an immutable data structure is changed (mutated), it shares as much state as possible with the previous version of itself via "structural sharing".  Under the covers, our 50 copies will be sharing a lot of state because they are 50 incremental revisions of the same map.
 
@@ -163,7 +158,7 @@ Anyway, this is easy;  just don't put undoable middleware on event handlers whic
 
 Sometimes your `app-db` will contain state from remote sources (databases?) AND some local client-specific state. In such cases, you don't want to undo the cached state from remote sources. The remote source "owns" that state, and it isn't something that the user can undo.
 
-Instead, you'd like to undo/redo **only part of app-db** - perhaps everything below a certain path - and leave the rest alone.
+Instead, you'd like to undo/redo **only part of app-db** (perhaps everything below a certain path) and leave the rest alone.
 
 Generally, you only ever call this configuration function once, during startup:
 ```clj
