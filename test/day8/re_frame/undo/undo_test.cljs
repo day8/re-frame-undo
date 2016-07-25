@@ -60,8 +60,6 @@
 
 
 (deftest test-undos-middleware
-  (is (not (undo/undos?)))
-  (is (not (undo/redos?)))
 
   (re-frame/reg-event
     :change-db
@@ -101,16 +99,9 @@
   (is (not (undo/redos?)))
   (is (undo/undos?))
   (is (= [{:test 5} {:test 6} {:test 7} {:test 8} {:test 9}]
-         @undo/undo-list))
-
-  ;; Clear history
-  (undo/clear-history!)
-  (is (not (undo/undos?)))
-  (is (not (undo/redos?))))
+         @undo/undo-list)))
 
 (deftest test-undos-fx
-  (is (not (undo/undos?)))
-  (is (not (undo/redos?)))
 
   (re-frame/reg-event-fx
     :change-db-fx
@@ -152,9 +143,4 @@
   (is (not (undo/redos?)))
   (is (undo/undos?))
   (is (= [{:test 5} {:test 6} {:test 7} {:test 8} {:test 9}]
-         @undo/undo-list))
-
-  ;; Clear history
-  (undo/clear-history!)
-  (is (not (undo/undos?)))
-  (is (not (undo/redos?))))
+         @undo/undo-list)))
