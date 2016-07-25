@@ -3,7 +3,7 @@
   :license      {:name "MIT"}
   :dependencies [[org.clojure/clojure        "1.8.0"]
                  [org.clojure/clojurescript  "1.9.89"]
-                 [re-frame                   "0.8.0-alpha2"]]
+                 [re-frame                   "0.8.0-alpha4"]]
 
   :profiles {:debug {:debug true}
              :dev   {:dependencies [[karma-reporter     "0.3.0"]

@@ -2,10 +2,8 @@
   (:require-macros [reagent.ratom  :refer [reaction]])
   (:require
     [reagent.core        :as     reagent]
-    [re-frame.loggers    :refer  [console]]
-    [re-frame.db         :refer  [app-db]]
-    [re-frame.events     :as     handlers]
-    [re-frame.subs       :as     subs]))
+    [re-frame.core       :as     re-frame]
+    [re-frame.db         :refer  [app-db]]))
 
 
 ;;  background docs:  https://github.com/Day8/re-frame/wiki/Undo-&-Red
@@ -20,7 +18,7 @@
 (defn undo-config!
   [new-config]
   (if-let [unknown-keys (seq (clojure.set/difference (-> new-config keys set) (-> @config keys set)))]
-    (console :warn "re-frame: you called undo-config! within unknown keys: " unknown-keys)
+    (re-frame/console :warn "re-frame: you called undo-config! within unknown keys: " unknown-keys)
     (swap! config merge new-config)))
 
 
@@ -96,14 +94,14 @@
 
 ;; -- subscriptions  -----------------------------------------------------------------------------
 
-(subs/register
+(re-frame/reg-sub-raw
   :undos?                   ;;  usage:  (subscribe [:undos?])
   (fn handler
     ; "returns true if anything is stored in the undo list, otherwise false"
     [_ _]
     (reaction (undos?))))
 
-(subs/register
+(re-frame/reg-sub-raw
   :redos?
   (fn handler
     ; "returns true if anything is stored in the redo list, otherwise false"
@@ -111,14 +109,14 @@
     (reaction (redos?))))
 
 
-(subs/register
+(re-frame/reg-sub-raw
   :undo-explanations
   (fn handler
     ; "returns a vector of string explanations ordered oldest to most recent"
     [_ _]
     (reaction (undo-explanations))))
 
-(subs/register
+(re-frame/reg-sub-raw
   :redo-explanations
   (fn handler
     ; "returns a vector of string explanations ordered from most recent undo onward"
@@ -145,13 +143,14 @@
     (undo deref reset! undo-explain-list app-explain redo-explain-list)
     (recur (dec n))))
 
-(handlers/register-base     ;; not a pure handler
+(re-frame/reg-event-fx
   :undo                     ;; usage:  (dispatch [:undo n])  n is optional, defaults to 1
   (fn handler
     [_ [_ n]]
     (if-not (undos?)
-      (console :warn "re-frame: you did a (dispatch [:undo]), but there is nothing to undo.")
-      (undo-n (or n 1)))))
+      (re-frame/console :warn "re-frame: you did a (dispatch [:undo]), but there is nothing to undo.")
+      (undo-n (or n 1)))
+    {}))   ; work is done directly on app-db
 
 
 (defn redo
@@ -170,21 +169,23 @@
     (redo deref reset! undo-explain-list app-explain redo-explain-list)
     (recur (dec n))))
 
-(handlers/register-base     ;; not a pure handler
+(re-frame/reg-event-fx
   :redo                     ;; usage:  (dispatch [:redo n])
   (fn handler               ;; if n absent, defaults to 1
     [_ [_ n]]
     (if-not (redos?)
-      (console :warn "re-frame: you did a (dispatch [:redo]), but there is nothing to redo.")
-      (redo-n (or n 1)))))
+      (re-frame/console :warn "re-frame: you did a (dispatch [:redo]), but there is nothing to redo.")
+      (redo-n (or n 1)))
+    {}))   ; work is done directly on app-db
 
-(handlers/register-base     ;; not a pure handler
+(re-frame/reg-event
   :purge-redos              ;; usage:  (dispatch [:purge-redos])
   (fn handler
-    [_ _]
+    [db _]
     (if-not (redos?)
-      (console :warn "re-frame: you did a (dispatch [:purge-redos]), but there is nothing to redo.")
-      (clear-redos!))))
+      (re-frame/console :warn "re-frame: you did a (dispatch [:purge-redos]), but there is nothing to redo.")
+      (clear-redos!))
+    db))
 
 
 
@@ -205,7 +206,7 @@
                           (fn? explanation)     (explanation db event-vec)
                           (string? explanation) explanation
                           (nil? explanation)    ""
-                          :else (console :error "re-frame: \"undoable\" middleware given a bad parameter. Got: " explanation))]
+                          :else (re-frame/console :error "re-frame: \"undoable\" middleware given a bad parameter. Got: " explanation))]
         (store-now! explanation)
         (handler db event-vec)))))
 
