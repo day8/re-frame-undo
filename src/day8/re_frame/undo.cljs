@@ -203,20 +203,15 @@
 
 (def undoable (with-meta undoable_ {:re-frame-factory-name "undoable"}))
 
-(def undo-explanation (atom ""))
-
-(defn undo-fx-handler
-  [s]
-  (reset! undo-explanation s))
-
 (defn undo-fx
   "Middleware that wraps the function in an undo but takes its arguements
   from the `:undo` key in the return"
   [handler]
   (fn undo-fx-hander
     [world event-vec]
-    (store-now! @undo-explanation)
-    (handler world event-vec)))
+    (let [ret (handler world event-vec)]
+      (store-now! (:undo ret))
+      (dissoc ret :undo))))
 
 ;; ====== actually register the  events and subscriptions
 
@@ -231,9 +226,6 @@
     redo-handler)
   (re-frame/reg-event
     :purge-redos              ;; usage:  (dispatch [:purge-redos])
-    purge-redo-handler)
-  (re-frame/reg-fx
-    :undo
-    undo-fx-handler))
+    purge-redo-handler))
 
 (register-events-subs!)
