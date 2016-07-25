@@ -49,12 +49,12 @@ So, no, storing 50 copies is unlikely to be expensive. (Unless you replace huge 
 
 ### Just Tell Me How To Do It
 
-You use `re-frame.core/undoable` middleware on the event handlers whose actions you wish to make undoable. Like this:
+You use `day8.re-frame.undo/undoable` middleware on the event handlers whose actions you wish to make undoable. Like this:
 
 ```
 (re-frame.core/def-event
   :your-event-id
-  (re-frame.core/undoable "This explains the action")  ;; <- undo middleware
+  (day8.re-frame.undo/undoable "This explains the action")  ;; <- undo middleware
   (fn [db [_]] ...))
 ```
 
@@ -162,7 +162,7 @@ Instead, you'd like to undo/redo **only part of app-db** (perhaps everything bel
 
 Generally, you only ever call this configuration function once, during startup:
 ```clj
-(re-frame.core/undo-config!  {:harvest-fn h  :reinstate-fn r})
+(day8.re-frame.undo/undo-config!  {:harvest-fn h  :reinstate-fn r})
 ```
 
 `h` is a function which "obtains" that state which should be remembered for undo/redo purposes. It takes one argument, which is `app-db`. The default implementation of `h` is `deref` which, of course, simply harvests the entire value in `app-db`.
@@ -171,14 +171,14 @@ Generally, you only ever call this configuration function once, during startup:
 
 With the following configuration, only the `[:a :b]` path within `app-db` will be undone/redone:
 ```clj
-(re-frame.core/undo-config!
+(day8.re-frame.undo/undo-config!
   {:harvest-fn   (fn [ratom] (some-> @ratom :a :b))
    :reinstate-fn (fn [ratom value] (swap! ratom assoc-in [:a :b] value))})
 ```
 
 And, with this configuration, only the `:c` and `:d` keys within `app-db` will be undone/redone:
 ```clj
-(re-frame.core/undo-config!
+(day8.re-frame.undo/undo-config!
   {:harvest-fn  (fn [ratom] (select-keys @ratom [:c :d]))
   :reinstate-fn (fn [ratom value] (swap! ratom merge value))})
 ```
@@ -187,7 +187,7 @@ In an even more complicated world (not recommended), you could even choose to ha
 
 So this sort of flexibility is possible:
 ```clj
-(re-frame.core/undo-config!
+(day8.re-frame.undo/undo-config!
   {:harvest-fn  (fn [ratom] [@cache @ratom])    ;; harvesting a vec of 2
   :reinstate-fn (fn [ratom [v1 v2]] (reset! cache v1) (reset! ratom v2))})
 ```
@@ -199,7 +199,7 @@ How many undo steps do you want to keep? Defaults to 50.
 
 Again, it is expected that you'd only ever call the configuration function once, during startup:
 ```
-(re-frame.core/undo-config!  {:max-undos  100})
+(day8.re-frame.undo/undo-config!  {:max-undos  100})
 ```
 
 ### App Triggered Undo
