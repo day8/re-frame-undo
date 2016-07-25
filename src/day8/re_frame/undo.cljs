@@ -143,15 +143,12 @@
     (undo deref reset! undo-explain-list app-explain redo-explain-list)
     (recur (dec n))))
 
-(re-frame/reg-event-fx
-  :undo                     ;; usage:  (dispatch [:undo n])  n is optional, defaults to 1
-  (fn handler
-    [_ [_ n]]
-    (if-not (undos?)
-      (re-frame/console :warn "re-frame: you did a (dispatch [:undo]), but there is nothing to undo.")
-      (undo-n (or n 1)))
-    {}))   ; work is done directly on app-db
-
+(defn undo-handler
+  [_ [_ n]]
+  (if-not (undos?)
+    (re-frame/console :warn "re-frame: you did a (dispatch [:undo]), but there is nothing to undo.")
+    (undo-n (or n 1)))
+  {}) ; work is done directly on app-db
 
 (defn redo
   [harvester reinstater undos cur redos]
@@ -169,25 +166,19 @@
     (redo deref reset! undo-explain-list app-explain redo-explain-list)
     (recur (dec n))))
 
-(re-frame/reg-event-fx
-  :redo                     ;; usage:  (dispatch [:redo n])
-  (fn handler               ;; if n absent, defaults to 1
-    [_ [_ n]]
+(defn redo-handler
+  [_ [_ n]]  ;; if n absent, defaults to 1
     (if-not (redos?)
       (re-frame/console :warn "re-frame: you did a (dispatch [:redo]), but there is nothing to redo.")
       (redo-n (or n 1)))
-    {}))   ; work is done directly on app-db
+    {})      ; work is done directly on app-db
 
-(re-frame/reg-event
-  :purge-redos              ;; usage:  (dispatch [:purge-redos])
-  (fn handler
-    [db _]
-    (if-not (redos?)
-      (re-frame/console :warn "re-frame: you did a (dispatch [:purge-redos]), but there is nothing to redo.")
-      (clear-redos!))
-    db))
-
-
+(defn purge-redo-handler
+  [db _]
+  (if-not (redos?)
+    (re-frame/console :warn "re-frame: you did a (dispatch [:purge-redos]), but there is nothing to redo.")
+    (clear-redos!))
+  db)
 
 ;; -- Middleware ----------------------------------------------------------
 
@@ -211,3 +202,38 @@
         (handler db event-vec)))))
 
 (def undoable (with-meta undoable_ {:re-frame-factory-name "undoable"}))
+
+(def undo-explanation (atom ""))
+
+(defn undo-fx-handler
+  [s]
+  (reset! undo-explanation s))
+
+(defn undo-fx
+  "Middleware that wraps the function in an undo but takes its arguements
+  from the `:undo` key in the return"
+  [handler]
+  (fn undo-fx-hander
+    [world event-vec]
+    (store-now! @undo-explanation)
+    (handler world event-vec)))
+
+;; ====== actually register the  events and subscriptions
+
+
+(defn register-events-subs!
+  []
+  (re-frame/reg-event-fx
+    :undo                     ;; usage:  (dispatch [:undo n])  n is optional, defaults to 1
+    undo-handler)
+  (re-frame/reg-event-fx
+    :redo                     ;; usage:  (dispatch [:redo n])
+    redo-handler)
+  (re-frame/reg-event
+    :purge-redos              ;; usage:  (dispatch [:purge-redos])
+    purge-redo-handler)
+  (re-frame/reg-fx
+    :undo
+    undo-fx-handler))
+
+(register-events-subs!)
