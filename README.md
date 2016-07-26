@@ -1,5 +1,3 @@
-> Status: requires re-frame >= v0.8.0-alpha2
-
 [![Clojars Project](https://img.shields.io/clojars/v/day8.re-frame/undo.svg)](https://clojars.org/day8.re-frame/undo)
 [![GitHub license](https://img.shields.io/github/license/Day8/re-frame-undo.svg)](license.txt)
 [![Circle CI](https://circleci.com/gh/Day8/re-frame-undo/tree/master.svg?style=shield&circle-token=:circle-ci-badge-token)](https://circleci.com/gh/Day8/re-frame-undo/tree/master)
@@ -16,7 +14,7 @@ Herein a re-frame library which implements undo
 Add the following project dependency:
 [![Clojars Project](https://img.shields.io/clojars/v/day8.re-frame/undo.svg)](https://clojars.org/day8.re-frame/undo)
 
-This library contains an undo/redo facility for [![Clojars Project](https://img.shields.io/clojars/v/re-frame.svg)](https://clojars.org/re-frame).
+This library contains an undo/redo facility for [re-frame](https://clojars.org/re-frame).
 
 ### On Mutations And Undoing
 
@@ -70,8 +68,6 @@ As a result the mutations it performs are easily undone.
 Well imagine re-frame middleware as an onion. The `reg-event-fx` call will add
 middleware (in this case `undo-fx`) between the `fx` middleware and the handler itself.
 
-
-
     +------------------------------------------+
     |       +------------------------------+   |
     |       |          +----------------+  |   |
@@ -104,22 +100,6 @@ This means that the following sequence occurs
           (store-now! (:undo ret))
           (dissoc ret :undo))))
 ```
-
-
-### Just Tell Me How To Do It
-
-You use `day8.re-frame.undo/undoable` middleware on the event handlers whose actions you wish to make undoable. Like this:
-
-```
-(re-frame.core/def-event
-  :your-event-id
-  (day8.re-frame.undo/undoable "This explains the action")  ;; <- undo middleware
-  (fn [db [_]] ...))
-```
-
-That's it.
-
-The `undoable` middleware saves (checkpoints) the current state of `app-db` BEFORE the event handler runs. As a result the mutations it performs are easily undone.
 
 ### Widgets
 
@@ -189,20 +169,6 @@ If the user chooses to undo multiple actions in one go, notice that you can supp
 (dispatch [:undo 10])   ;; undo 10 actions
 (dispatch [:redo 10])   ;; redo 10 actions
 ```
-
-### Fancy Explanations
-
-Normally, `undoable` middleware is just given a static string like this:
-```
-  (undoable "change font size")
-```
-but you can get fancy if you want.
-
-You can supply a function instead, and it will be called to generate the explanation.
-```
-(undoable my-string-generating-fn)
-```
-Your function will be called with arguments `db` `event-vec` and it is expected to return a string explanation.
 
 ###  Not Everything Should Be Undone
 
@@ -279,6 +245,36 @@ because they want to get rid for the redo caused by the undo.
 
 So I've heard.
 
+
+
+### The undoable middleware (the old way)
+
+You use `day8.re-frame.undo/undoable` middleware on the event handlers whose actions you wish to make undoable. Like this:
+
+```
+(re-frame.core/def-event
+  :your-event-id
+  (day8.re-frame.undo/undoable "This explains the action")  ;; <- undo middleware
+  (fn [db [_]] ...))
+```
+
+That's it.
+
+The `undoable` middleware saves (checkpoints) the current state of `app-db` BEFORE the event handler runs. As a result the mutations it performs are easily undone.
+
+### Fancy Explanations (the old way)
+
+Normally, `undoable` middleware is just given a static string like this:
+```
+  (undoable "change font size")
+```
+but you can get fancy if you want.
+
+You can supply a function instead, and it will be called to generate the explanation.
+```
+(undoable my-string-generating-fn)
+```
+Your function will be called with arguments `db` `event-vec` and it is expected to return a string explanation.
 
 
 
