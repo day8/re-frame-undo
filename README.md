@@ -4,7 +4,7 @@
 ## Undos in re-frame
 
 
-This library contains an undo/redo facility for [re-frame](https://clojars.org/re-frame).
+A library which provides undo/redo facility for [re-frame](https://clojars.org/re-frame).
 
 [![GitHub license](https://img.shields.io/github/license/Day8/re-frame-undo.svg)](license.txt)
 [![Circle CI](https://circleci.com/gh/Day8/re-frame-undo/tree/master.svg?style=shield&circle-token=:circle-ci-badge-token)](https://circleci.com/gh/Day8/re-frame-undo/tree/master)

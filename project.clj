@@ -1,5 +1,5 @@
 (defproject day8.re-frame/undo "0.3.0-SNAPSHOT"
-  :description  "A re-frame feature that implements undo"
+  :description  "A library which provides undo/redo facility for re-frame"
   :license      {:name "MIT"}
   :dependencies [[org.clojure/clojure        "1.8.0"]
                  [org.clojure/clojurescript  "1.9.89"]
