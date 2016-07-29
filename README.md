@@ -1,4 +1,8 @@
+>  Status:  alpha until re-frame v0.8.0 is released 
+>  THis library can't be used with re-frame <= v0.7.0
+
 ## Undos in re-frame
+
 
 This library contains an undo/redo facility for [re-frame](https://clojars.org/re-frame).
 
@@ -33,7 +37,7 @@ There's two kinds of middleware because there's two kinds of event
 handlers: db and effectful. 
  
  
-**For Pure**
+**For "db"**
 
 You use the `undoable` middleware.  
 
@@ -45,7 +49,7 @@ You use the `undoable` middleware.
      (assoc db :flag true))
 ```
  
- 
+
 **For Effectful Handlers**
 
 You use the combination of `undo-fx` middleware and `:undo`, like this:
