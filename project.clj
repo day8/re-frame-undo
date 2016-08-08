@@ -1,9 +1,9 @@
-(defproject day8.re-frame/undo "0.3.0-SNAPSHOT"
+(defproject day8.re-frame/undo "0.3.0"
   :description  "A library which provides undo/redo facility for re-frame"
   :license      {:name "MIT"}
   :dependencies [[org.clojure/clojure        "1.8.0"]
                  [org.clojure/clojurescript  "1.9.89"]
-                 [re-frame                   "0.8.0-alpha4"]]
+                 [re-frame                   "0.8.0-alpha10"]]
 
   :profiles {:debug {:debug true}
              :dev   {:dependencies [[karma-reporter     "0.3.0"]

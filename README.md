@@ -1,10 +1,9 @@
->  Status:  alpha until re-frame v0.8.0 is released 
->  THis library can't be used with re-frame <= v0.7.0
+>  Status:  alpha - until such time as re-frame 0.8.0 itself comes out of alpha
+>  Currently, you need re-frame >= 0.8.0-alpha10
 
 ## Undos in re-frame
 
-
-A library which provides undo/redo facility for [re-frame](https://clojars.org/re-frame).
+Herein a library which provides undo/redo capabilities for [re-frame](https://clojars.org/re-frame).
 
 [![GitHub license](https://img.shields.io/github/license/Day8/re-frame-undo.svg)](license.txt)
 [![Circle CI](https://circleci.com/gh/Day8/re-frame-undo/tree/master.svg?style=shield&circle-token=:circle-ci-badge-token)](https://circleci.com/gh/Day8/re-frame-undo/tree/master)
@@ -17,51 +16,54 @@ A library which provides undo/redo facility for [re-frame](https://clojars.org/r
 Add the following project dependency: <br>
 [![Clojars Project](https://img.shields.io/clojars/v/day8.re-frame/undo.svg)](https://clojars.org/day8.re-frame/undo)
 
+You'll also need re-frame >= 0.8.0
 
 ### Step 2. Registration and Use
-
-To make an event undoable, you must wrap it in certain middlewares.  
 
 In the namespace where you register your event handlers, perhaps 
 called `events.cljs`, add this "require" to the `ns`:
 ```clj
-(ns app.core
+(ns my-app.events
   (:require
     ...
-    [day8.re-frame.undo :refer [undo-fx undoable]]     ;; <-- bring in the middleware
+    [day8.re-frame.undo :as undo :refer [undoable]]  
     ...))
 ```
 
-
-There's two kinds of middleware because there's two kinds of event 
-handlers: db and effectful. 
- 
- 
-**For "db"**
-
-You use the `undoable` middleware.  
-
+To make an event handler undoable, use the `undoable` interceptor factory, like this:
 ```clj
-(re-frame.core/reg-event         ;; basic, so use registration without trailing -fx
+(re-frame.core/reg-event-db         
   :event-id
-  (undoable "setting flag")      ;; use this middleware factory.  Provide string description
-  (fn [db event]  
+  (undoable "setting flag")         ;; use "undoable" interceptor factory.  Provide string description
+  (fn [db event]                    ;; just a basic "db" handler. Note re-event-db used to register it
      (assoc db :flag true))
 ```
- 
+This is a very convenient method. It removes undo-related noise from the event handler itself. It is 
+probably the recommended way. It can be used with `-fx` event handlers in this form too. 
 
-**For Effectful Handlers**
 
-You use the combination of `undo-fx` middleware and `:undo`, like this:
-
+**The other way** is to use the `:undo` effect. 
 ```clj
-(re-frame.core/reg-event-fx         ;; effectful, so register using -fx variety 
+(re-frame.core/reg-event-fx         ;; effectful handler, so register using -fx variety 
   :event-id
-  undo-fx                           ;; add middleware  (different to above)
-  (fn [{:key [db]} event]  
-    {:db (assoc db :flag true)
-     :undo "setting flag"}))        ;; provide the description via this effect
+  (undoable)                        ;; you don'thave to supply an explanation
+  (fn [{:key [db]} event]           ;; first parameter will be `coeffects`
+    {:db (assoc db :flag true)      ;; return effects
+     :undo "setting flag"}))        ;; provide the explanation via this effect
 ```
+
+This 2nd form is potentially more powerful, because you 
+can construct very customized  `:undo`  explanations in the handler.  But that's at the expense of
+making the handler itself more complicated.
+
+Many times you'll be happy with providing a static string description, in which case the first 
+interceptor "lifts" the undo related code out of the handler, keeping it simple. 
+
+**Note 1:** if you do use the 2nd form, know the undo check-pointing always happens even if the 
+`:undo` effect is absent.  That `undo` effect just allows you to give a fancy explanation - it is
+*not* used to indicate if the checkpoint should happen or not.  
+
+**Note 2:** always use a function call `(undoable)`. Don't think you can just use a bare `undoable`. 
 
 ## Tutorial 
 
@@ -109,18 +111,13 @@ So, no, storing 50 copies is unlikely to be expensive. (Unless you replace huge 
 
 ### Just Tell Me How To Do It
 
-You add middleware to event handlers. That's it.  The  middleware saves (checkpoints) the state
-of `app-db` BEFORE the event handler runs. As a result, the mutations it performs are 
-easily undone.
+You add an interceptor to certain of your event handlers. That's it.  The  interceptor saves (checkpoints) the state
+of `app-db` allowing the mutations they perform by the event handlers to be easily undone.
 
-As explained in the Quick Start guide, the middleware you use depends on your event handler.  
+As explained in the Quick Start guide, you will use the `undoable` function to create an interceptor. You must 
+call it: `(undoable "explanation here")`.  
 
-If it is a basic event handler, then `undoable` is used.  Because it is a middleware factory, you must call it: `(undoable "description here")`
-
-If the event handler is effectful, then use `undo-fx` and then supply the description via the `:undo` key.  
-
-See the Quick Start Guide above for examples. 
-
+If there is an `:undo` effect retutned by the handler then the explanation it provides is always used. 
 
 ### Widgets
 
@@ -232,7 +229,7 @@ takes two arguments, a ratom (`app-db`) and the `value` to be re-instated.
 The default implementation of `r` is `reset!`.
 
 With the following configuration, only the `[:a :b]` path within `app-db` will 
-be undone/redone:
+be undone/re-done:
 ```clj
 (day8.re-frame.undo/undo-config!
   {:harvest-fn   (fn [ratom] (some-> @ratom :a :b))
@@ -246,10 +243,10 @@ And, with this configuration, only the `:c` and `:d` keys within `app-db` will b
   :reinstate-fn (fn [ratom value] (swap! ratom merge value))})
 ```
 
-In an even more complicated world (not recommended), you could even choose 
+In an more complicated world, you could even choose 
 to harvest state outside of `app-db`. The state of a sibling DataScript 
 database?  Another ratom?  Yes, these two `fn`s are given `app-db` but 
-they could draw data from further afield if necessary.  Whatever you 
+they could pull data from further afield if necessary.  Whatever you 
 return from your `harvest-fn` will be stored (a vector?, a map?, anything), 
 and then later it is expected that your `reinstate-fn` will know how to 
 put the harvested values (maps?, vectors?, anything) back in the right places.
@@ -273,9 +270,9 @@ function once, during startup:
 ```
 
 
-### Fancy Explanations With undoable
+### Fancy Explanations With `undoable`
 
-Normally, `undoable` middleware is just given a static string like this:
+Normally, the `undoable` interceptor is simply called with a static explanation string like this:
 ```
   (undoable "change font size")
 ```
@@ -285,7 +282,10 @@ You can supply a function instead, and it will be called to generate the explana
 ```
 (undoable my-string-generating-fn)
 ```
-Your function will be called with arguments `db` `event-vec` and it is expected to return a string explanation.
+Your function will be called with arguments `db` and `event-vec` and it is expected to return a string explanation.
+
+Of course, as noted above,  if a handler returns an `:undo` effect, the explanation it provides trumps all
+other methods of suppling the explanation.
 
 
 ### App Triggered Undo
@@ -305,7 +305,7 @@ I've also heard it said that some do this straight after the undo:
 ```
 (dispatch [:purge-redos])
 ```
-because they want to get rid for the redo caused by the undo.
+because they want to get rid for the redo caused by that undo.
 
 So I've heard.
 

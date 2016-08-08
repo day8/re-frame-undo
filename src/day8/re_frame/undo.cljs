@@ -6,9 +6,6 @@
     [re-frame.db         :refer  [app-db]]))
 
 
-;;  background docs:  https://github.com/Day8/re-frame/wiki/Undo-&-Red
-
-
 ;; -- Configuration ----------------------------------------------------------
 
 (def ^:private config (atom {:max-undos    50   ;; Maximum number of undo states maintained
@@ -16,13 +13,18 @@
                              :reinstate-fn reset!}))
 
 (defn undo-config!
+  "Set configuration parameters for library.
+
+  Should be called on app startup."
   [new-config]
-  (if-let [unknown-keys (seq (clojure.set/difference (-> new-config keys set) (-> @config keys set)))]
-    (re-frame/console :warn "re-frame: you called undo-config! within unknown keys: " unknown-keys)
+  (if-let [unknown-keys (seq (clojure.set/difference
+                               (-> new-config keys set)
+                               (-> @config keys set)))]
+    (re-frame/console :error "re-frame-undo: undo-config! called within unknown keys: " unknown-keys)
     (swap! config merge new-config)))
 
 
-(defn max-undos
+(defn- max-undos
   []
   (:max-undos @config))
 
@@ -35,9 +37,9 @@
 
 ;; -- Explanations -----------------------------------------------------------
 ;;
-;; Each undo has an associated explanation which can be displayed to the user.
+;; Each undo has an associated string explanation, for display to the user.
 ;;
-;; Seems really ugly to have mirrored vectors, but ...
+;; It seems ugly to have mirrored vectors, but ...
 ;; the code kinda falls out when you do. I'm feeling lazy.
 (def ^:private app-explain "Mirrors app-db" (reagent/atom ""))
 (def ^:private undo-explain-list "Mirrors undo-list" (reagent/atom []))
@@ -180,40 +182,39 @@
     (clear-redos!))
   db)
 
-;; -- Middleware ----------------------------------------------------------
 
-(defn undoable_
-  "A Middleware factory which stores an undo checkpoint.
-  \"explanation\" can be either a string or a function. If it is a
-  function then must be:  (db event-vec) -> string.
-  \"explanation\" can be nil. in which case \"\" is recorded.
+;; -- Interceptors ----------------------------------------------------------
+
+(defn undoable
+  "returns a side-effecting Interceptor, which stores an undo checkpoint in
+  `:after` processing.
+   If the `:effect` cotnains an `:undo` then use the explanation provided by it.
+   Otherwise, `explanation` can be:
+     - a string (of explanation)
+     - a function expected to return a string of explanation. It will be called
+       with two arguments: `db` and `event-vec`.
+     - a nil, in which case \"\" is recorded as the explanation
   "
-  [explanation]
-  (fn undoable-middleware
-    [handler]
-    (fn undoable-handler
-      [db event-vec]
-      (let [explanation (cond
-                          (fn? explanation)     (explanation db event-vec)
-                          (string? explanation) explanation
-                          (nil? explanation)    ""
-                          :else (re-frame/console :error "re-frame: \"undoable\" middleware given a bad parameter. Got: " explanation))]
-        (store-now! explanation)
-        (handler db event-vec)))))
+  ([] (undoable nil))
+  ([explanation]
+      (re-frame/->interceptor
+        :name    :undoable
+        :after  (fn [context]
+                  (let [event        (re-frame/get-coeffect context :event)
+                        undo-effect  (re-frame/get-effect :undo)
+                        explanation (cond
+                                      (some? undo-effect)   undo-effect
+                                      (fn? explanation)     (explanation
+                                                              (re-frame/get-coeffect context :db)
+                                                              event)
+                                      (string? explanation) explanation
+                                      (nil? explanation)    ""
+                                      :else (re-frame/console :error "re-frame-undo: \"undoable\" interceptor on event " event " given a bad parameter. Got: " explanation))]
+                    (store-now! explanation)
+                    (dissoc context :undo))))))   ;; remove any `:undo` effect. Already handled.
 
-(def undoable (with-meta undoable_ {:re-frame-factory-name "undoable"}))
 
-(defn undo-fx
-  "Middleware that wraps the function in an undo but takes its arguements
-  from the `:undo` key in the return"
-  [handler]
-  (fn undo-fx-hander
-    [world event-vec]
-    (let [ret (handler world event-vec)]
-      (store-now! (:undo ret))
-      (dissoc ret :undo))))
-
-;; ====== actually register the  events and subscriptions
+;; -- register handlers for events and subscriptions
 
 
 (defn register-events-subs!
@@ -224,7 +225,7 @@
   (re-frame/reg-event-fx
     :redo                     ;; usage:  (dispatch [:redo n])
     redo-handler)
-  (re-frame/reg-event
+  (re-frame/reg-event-db
     :purge-redos              ;; usage:  (dispatch [:purge-redos])
     purge-redo-handler))
 
