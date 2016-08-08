@@ -1,4 +1,4 @@
->  Status:  alpha - until such time as re-frame 0.8.0 itself comes out of alpha
+>  Status:  alpha - until such time as re-frame 0.8.0 itself comes out of alpha <br>
 >  Currently, you need re-frame >= 0.8.0-alpha10
 
 ## Undos in re-frame
