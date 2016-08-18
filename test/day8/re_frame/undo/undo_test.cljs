@@ -6,13 +6,12 @@
 
 (defn undo-fixtures
   [f]
-  (reset! db/app-db {})
-  (re-frame/clear-all-events!)
-  (undo/register-events-subs!)
-  ;; Create undo history
-  (undo/undo-config! {:max-undos 5})
-  (undo/clear-history!)
-  (f))
+  (let [restore-re-frame-fn (re-frame/make-restore-fn)]
+    (undo/undo-config! {:max-undos 5})
+    (undo/clear-history!)
+    (try
+      (f)
+      (finally (restore-re-frame-fn)))))
 
 (cljs.test/use-fixtures :each undo-fixtures)
 
