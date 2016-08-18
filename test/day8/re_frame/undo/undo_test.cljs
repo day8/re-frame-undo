@@ -59,7 +59,7 @@
   (is (not (undo/redos?))))
 
 
-(deftest test-undos-middleware
+(deftest test-undos-interceptor
 
   (re-frame/reg-event-db
     :change-db
