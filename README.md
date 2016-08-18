@@ -1,9 +1,6 @@
->  Status:  alpha - until such time as re-frame 0.8.0 itself comes out of alpha <br>
->  Currently, you need re-frame >= 0.8.0-alpha10
-
 ## Undos in re-frame
 
-Herein a library which provides undo/redo capabilities for [re-frame](https://clojars.org/re-frame).
+This library provides undo/redo capabilities for [re-frame](https://clojars.org/re-frame).
 
 [![GitHub license](https://img.shields.io/github/license/Day8/re-frame-undo.svg)](license.txt)
 [![Circle CI](https://circleci.com/gh/Day8/re-frame-undo/tree/master.svg?style=shield&circle-token=:circle-ci-badge-token)](https://circleci.com/gh/Day8/re-frame-undo/tree/master)
@@ -38,7 +35,7 @@ To make an event handler undoable, use the `undoable` interceptor factory, like 
   (fn [db event]                    ;; just a basic "db" handler. Note re-event-db used to register it
      (assoc db :flag true))
 ```
-This is a very convenient method. It removes undo-related noise from the event handler itself. It is 
+This is a very convenient method. It removes any undo-related noise from the event handler itself. It is 
 probably the recommended way. It can be used with `-fx` event handlers in this form too. 
 
 
