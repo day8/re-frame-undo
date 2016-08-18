@@ -188,8 +188,8 @@
 (defn undoable
   "returns a side-effecting Interceptor, which stores an undo checkpoint in
   `:after` processing.
-   If the `:effect` cotnains an `:undo` then use the explanation provided by it.
-   Otherwise, `explanation` can be:
+   If the `:effect` cotnains an `:undo` key, then use the explanation provided
+   by it. Otherwise, `explanation` can be:
      - a string (of explanation)
      - a function expected to return a string of explanation. It will be called
        with two arguments: `db` and `event-vec`.
@@ -198,7 +198,7 @@
   ([] (undoable nil))
   ([explanation]
       (re-frame/->interceptor
-        :name    :undoable
+        :id     :undoable
         :after  (fn [context]
                   (let [event        (re-frame/get-coeffect context :event)
                         undo-effect  (re-frame/get-effect :undo)
