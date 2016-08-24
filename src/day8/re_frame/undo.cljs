@@ -201,7 +201,7 @@
         :id     :undoable
         :after  (fn [context]
                   (let [event        (re-frame/get-coeffect context :event)
-                        undo-effect  (re-frame/get-effect :undo)
+                        undo-effect  (re-frame/get-effect context :undo)
                         explanation (cond
                                       (some? undo-effect)   undo-effect
                                       (fn? explanation)     (explanation
@@ -211,7 +211,7 @@
                                       (nil? explanation)    ""
                                       :else (re-frame/console :error "re-frame-undo: \"undoable\" interceptor on event " event " given a bad parameter. Got: " explanation))]
                     (store-now! explanation)
-                    (dissoc context :undo))))))   ;; remove any `:undo` effect. Already handled.
+                    (update context :effects dissoc :undo))))))   ;; remove any `:undo` effect. Already handled.
 
 
 ;; -- register handlers for events and subscriptions

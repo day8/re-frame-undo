@@ -100,11 +100,11 @@
   (is (= [{:test 5} {:test 6} {:test 7} {:test 8} {:test 9}]
          @undo/undo-list)))
 
-#_(deftest test-undos-fx
+(deftest test-undos-interceptor-description
 
   (re-frame/reg-event-fx
     :change-db-fx
-    undo/undo-fx
+    (undo/undoable)
     (fn [{:keys [db]} _]
       (let [update-num (inc (:test db))]
         {:db (assoc db :test update-num)
