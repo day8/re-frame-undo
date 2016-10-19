@@ -1,8 +1,9 @@
-## Undos in re-frame
-
 > However hard you try to look behind you, there’s a behind you, behind you, 
 > where you aren’t looking. <br>
 > -- Terry Pratchett, Going Postal
+
+
+## Undos in re-frame
 
 This library provides undo/redo capabilities for [re-frame](https://clojars.org/re-frame).
 
