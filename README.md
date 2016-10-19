@@ -1,5 +1,9 @@
 ## Undos in re-frame
 
+> However hard you try to look behind you, there’s a behind you, behind you, 
+> where you aren’t looking. <br>
+> -- Terry Pratchett, Going Postal
+
 This library provides undo/redo capabilities for [re-frame](https://clojars.org/re-frame).
 
 [![GitHub license](https://img.shields.io/github/license/Day8/re-frame-undo.svg)](license.txt)
