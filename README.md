@@ -38,7 +38,7 @@ To make an event handler undoable, use the `undoable` interceptor factory, like 
 (re-frame.core/reg-event-db         
   :event-id
   (undoable "setting flag")         ;; use "undoable" interceptor factory.  Provide string description
-  (fn [db event]                    ;; just a basic "db" handler. Note re-event-db used to register it
+  (fn [db event]                    ;; just a basic "db" handler. Note reg-event-db used to register it
      (assoc db :flag true))
 ```
 This is a very convenient method. It removes any undo-related noise from the event handler itself. It is 
@@ -49,7 +49,7 @@ probably the recommended way. It can be used with `-fx` event handlers in this f
 ```clj
 (re-frame.core/reg-event-fx         ;; effectful handler, so register using -fx variety 
   :event-id
-  (undoable)                        ;; you don'thave to supply an explanation
+  (undoable)                        ;; you don't have to supply an explanation
   (fn [{:key [db]} event]           ;; first parameter will be `coeffects`
     {:db (assoc db :flag true)      ;; return effects
      :undo "setting flag"}))        ;; provide the explanation via this effect
@@ -73,9 +73,9 @@ interceptor "lifts" the undo related code out of the handler, keeping it simple.
 Event handlers cause change - they mutate `app-db`. Before an event handler runs, 
 `app-db` is in one state and, after it has run, `app-db` will be in a new state.
 
-Undoing a user's action means reversing a mutation to `app-db`.  For example, if
+Undoing a user's action means reversing a mutation to `app-db`. For example, if
 this happened `(dispatch [:delete-item 42])` we'd need to know how to reverse 
-the mutation it caused.  But how?
+the mutation it caused. But how?
 
 In an OO system, you'd use the Command Pattern to store the reverse of each
 mutation. You'd remember that the reverse action for `(dispatch [:delete-item 42])` 
@@ -114,37 +114,37 @@ So, no, storing 50 copies is unlikely to be expensive. (Unless you replace huge 
 
 ### Just Tell Me How To Do It
 
-You add an interceptor to certain of your event handlers. That's it.  The  interceptor saves (checkpoints) the state
+You add an interceptor to certain of your event handlers. That's it. The interceptor saves (checkpoints) the state
 of `app-db` allowing the mutations they perform by the event handlers to be easily undone.
 
 As explained in the Quick Start guide, you will use the `undoable` function to create an interceptor. You must 
 call it: `(undoable "explanation here")`.  
 
-If there is an `:undo` effect retutned by the handler then the explanation it provides is always used. 
+If there is an `:undo` effect returned by the handler then the explanation it provides is always used. 
 
 ### Widgets
 
-There's going to be widgets, right?  There's got to be a way for the user to undo and redo. How do I write these widgets?
+There's going to be widgets, right? There's got to be a way for the user to undo and redo. How do I write these widgets?
 
-Initially, to make it easier, let's assume our widgets are simple buttons:  an undo button, and a redo button.
+Initially, to make it easier, let's assume our widgets are simple buttons: an undo button, and a redo button.
 
 
 
 ##### Disabling The Buttons
 
 Our two buttons should be disabled if there's nothing to redo, or undo. To help, we provide two subscriptions:
-```
+```clj
 ;; Boolean. Is there anything to undo?
 (subscribe [:undos?])
 
-;; Boolean. Is there anything to redo?  Ie. has the user undone one or more times?
+;; Boolean. Is there anything to redo? Ie. has the user undone one or more times?
 (subscribe [:redos?])
 ```
 
 ##### Button click
 
-And when our two buttons get clicked, how do we make it happen?  we provide handlers for these two built in events:
-```
+And when our two buttons get clicked, how do we make it happen? We provide handlers for these two built in events:
+```clj
 (dispatch [:undo])
 (dispatch [:redo])
 ```
@@ -152,15 +152,15 @@ And when our two buttons get clicked, how do we make it happen?  we provide hand
 ##### The Result
 
 Using these built in features, here's how an undo button might be coded:
-```
+```clj
 (defn undo-button
   []
-   (let [undos?  (subscribe [:undos?])]      ;; only enable the button when there's undos
-     (fn []
-       [:input {:type "button"
-        :value "undo"
-        :disabled  (not @undos?)
-        :on-click #(dispatch [:undo]) }]])))  ;; clicking will undo the latest action
+  (let [undos? (subscribe [:undos?])]       ;; only enable the button when there's undos
+    (fn []
+      [:input {:type "button"
+       :value "undo"
+       :disabled (not @undos?)
+       :on-click #(dispatch [:undo])}]])))  ;; clicking will undo the latest action
 ```
 
 ### Navigating Undos
@@ -180,7 +180,7 @@ As you saw above, when you use `undoable` middleware, you can (optionally)
 provide a string "explanation" for the action being performed. re-frame 
 remembers and manages these explanations for you, and can provide them 
 via built-in subscriptions:
-```
+```clj
 ;; a vector of strings. Explanations ordered oldest to most recent
 (subscribe [:undo-explanations])
 
@@ -188,8 +188,8 @@ via built-in subscriptions:
 (subscribe [:redo-explanations])
 ```
 
-If the user chooses to undo multiple actions in one go, notice that you can supply a integer parameter in these events:
-```
+If the user chooses to undo multiple actions in one go, notice that you can supply an integer parameter in these events:
+```clj
 (dispatch [:undo 10])   ;; undo 10 actions
 (dispatch [:redo 10])   ;; redo 10 actions
 ```
@@ -200,11 +200,11 @@ In my experience, you won't want every event handler to be `undoable`.
 
 For example, `(dispatch [:undo])` itself should not be undoable. And when a 
 handler causes an HTTP GET, and then another handler processes the on-success
- result, you'd probably only want the initial handler to be undoable, not the 
- on-success handler. Etc. To a user, the two step dispatch is one atomic operation 
- and we only want to checkpoint app-db before the first.
+result, you'd probably only want the initial handler to be undoable, not the 
+on-success handler. Etc. To a user, the two step dispatch is one atomic operation 
+and we only want to checkpoint app-db before the first.
 
-Anyway, this is easy;  just don't put undoable middleware on event handlers which 
+Anyway, this is easy; just don't put undoable middleware on event handlers which 
 should not checkpoint.
 
 
@@ -220,7 +220,7 @@ below a certain path) and leave the rest alone.
 
 Generally, you only ever call this configuration function once, during startup:
 ```clj
-(day8.re-frame.undo/undo-config!  {:harvest-fn h  :reinstate-fn r})
+(day8.re-frame.undo/undo-config! {:harvest-fn h :reinstate-fn r})
 ```
 
 `h` is a function which "obtains" that state which should be remembered for 
@@ -243,13 +243,13 @@ And, with this configuration, only the `:c` and `:d` keys within `app-db` will b
 ```clj
 (day8.re-frame.undo/undo-config!
   {:harvest-fn  (fn [ratom] (select-keys @ratom [:c :d]))
-  :reinstate-fn (fn [ratom value] (swap! ratom merge value))})
+   :reinstate-fn (fn [ratom value] (swap! ratom merge value))})
 ```
 
-In an more complicated world, you could even choose 
+In a more complicated world, you could even choose 
 to harvest state outside of `app-db`. The state of a sibling DataScript 
-database?  Another ratom?  Yes, these two `fn`s are given `app-db` but 
-they could pull data from further afield if necessary.  Whatever you 
+database? Another ratom? Yes, these two `fn`s are given `app-db` but 
+they could pull data from further afield if necessary. Whatever you 
 return from your `harvest-fn` will be stored (a vector?, a map?, anything), 
 and then later it is expected that your `reinstate-fn` will know how to 
 put the harvested values (maps?, vectors?, anything) back in the right places.
@@ -258,7 +258,7 @@ So this sort of flexibility is possible:
 ```clj
 (day8.re-frame.undo/undo-config!
   {:harvest-fn  (fn [ratom] [@cache @ratom])    ;; harvesting a vec of 2
-  :reinstate-fn (fn [ratom [v1 v2]] (reset! cache v1) (reset! ratom v2))})
+   :reinstate-fn (fn [ratom [v1 v2]] (reset! cache v1) (reset! ratom v2))})
 ```
 
 
@@ -268,27 +268,27 @@ How many undo steps do you want to keep? Defaults to 50.
 
 Again, it is expected that you'd only ever call the configuration 
 function once, during startup:
-```
-(day8.re-frame.undo/undo-config!  {:max-undos  100})
+```clj
+(day8.re-frame.undo/undo-config! {:max-undos 100})
 ```
 
 
 ### Fancy Explanations With `undoable`
 
 Normally, the `undoable` interceptor is simply called with a static explanation string like this:
-```
-  (undoable "change font size")
+```clj
+(undoable "change font size")
 ```
 but you can get fancy if you want.
 
 You can supply a function instead, and it will be called to generate the explanation.
-```
+```clj
 (undoable my-string-generating-fn)
 ```
 Your function will be called with arguments `db` and `event-vec` and it is expected to return a string explanation.
 
-Of course, as noted above,  if a handler returns an `:undo` effect, the explanation it provides trumps all
-other methods of suppling the explanation.
+Of course, as noted above, if a handler returns an `:undo` effect, the explanation it provides trumps all
+other methods of supplying the explanation.
 
 
 ### App Triggered Undo
@@ -296,7 +296,7 @@ other methods of suppling the explanation.
 Apparently, some people's apps throw exceptions in production, sometimes.
 To gracefully handle this, I've heard that they write an Unhandled Exception 
 Handler which triggers an undo:
-```
+```clj
 (dispatch [:undo])
 ```
 They want their application to step back to the last-known-good state. 
@@ -305,7 +305,7 @@ Potentially from there, the user can continue on.
 Of course, my programs never exception, so I don't need to worry about all this.
 
 I've also heard it said that some do this straight after the undo:
-```
+```clj
 (dispatch [:purge-redos])
 ```
 because they want to get rid for the redo caused by that undo.
