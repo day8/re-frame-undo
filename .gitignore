@@ -14,3 +14,7 @@ pom.xml.asc
 .lein-failures
 .nrepl-port
 .idea/
+/.shadow-cljs/
+/shadow-cljs.edn
+/package.json
+/package-lock.json
