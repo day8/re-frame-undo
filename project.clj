@@ -19,7 +19,7 @@
                    "resources/public/js/test"]
 
   :resource-paths ["run/resources"]
-  :jvm-opts       ["-Xmx1g" "-XX:+UseConcMarkSweepGC"]
+  :jvm-opts       ["-Xmx1g"]
   :source-paths   ["src"]
   :test-paths     ["test"]
 
