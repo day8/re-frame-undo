@@ -8,9 +8,9 @@
 
 ;; -- Configuration ----------------------------------------------------------
 
-(def ^:private config (atom {:max-undos    50   ;; Maximum number of undo states maintained
-                             :harvest-fn   deref
-                             :reinstate-fn reset!}))
+(def config (atom {:max-undos    50   ;; Maximum number of undo states maintained
+                   :harvest-fn   deref
+                   :reinstate-fn reset!}))
 
 (defn undo-config!
   "Set configuration parameters for library.
@@ -24,7 +24,7 @@
     (swap! config merge new-config)))
 
 
-(defn- max-undos
+(defn max-undos
   []
   (:max-undos @config))
 
@@ -32,8 +32,8 @@
 
 ;; -- State history ----------------------------------------------------------
 
-(def ^:private undo-list "A list of history states" (reagent/atom []))
-(def ^:private redo-list "A list of future states, caused by undoing" (reagent/atom []))
+(def undo-list "A list of history states" (reagent/atom []))
+(def redo-list "A list of future states, caused by undoing" (reagent/atom []))
 
 ;; -- Explanations -----------------------------------------------------------
 ;;
@@ -41,9 +41,9 @@
 ;;
 ;; It seems ugly to have mirrored vectors, but ...
 ;; the code kinda falls out when you do. I'm feeling lazy.
-(def ^:private app-explain "Mirrors app-db" (reagent/atom ""))
-(def ^:private undo-explain-list "Mirrors undo-list" (reagent/atom []))
-(def ^:private redo-explain-list "Mirrors redo-list" (reagent/atom []))
+(def app-explain "Mirrors app-db" (reagent/atom ""))
+(def undo-explain-list "Mirrors undo-list" (reagent/atom []))
+(def redo-explain-list "Mirrors redo-list" (reagent/atom []))
 
 (defn clear-undos!
   []
