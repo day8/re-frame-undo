@@ -27,7 +27,7 @@ orbs:
               command: sudo npm install -g karma-cli
 
           - run:
-              command: lein test-once
+              command: lein karma-once
 
           - save_cache:
               paths:
