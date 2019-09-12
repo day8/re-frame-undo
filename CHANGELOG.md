@@ -2,6 +2,7 @@
 
 #### Changed
 
+- Make everything public. No private defs.
 - Migrate to [shadow-cljs](https://shadow-cljs.github.io/docs/UsersGuide.html) and
   [lein-shadow](https://gitlab.com/nikperic/lein-shadow)
 
