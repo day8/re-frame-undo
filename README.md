@@ -8,8 +8,8 @@
 
 This library provides undo/redo capabilities for [re-frame](https://clojars.org/re-frame).
 
-[![GitHub license](https://img.shields.io/github/license/Day8/re-frame-undo.svg)](license.txt)
-[![Circle CI](https://circleci.com/gh/Day8/re-frame-undo/tree/master.svg?style=shield&circle-token=:circle-ci-badge-token)](https://circleci.com/gh/Day8/re-frame-undo/tree/master)
+[![GitHub license](https://img.shields.io/github/license/day8/re-frame-undo.svg)](license.txt)
+[![Circle CI](https://circleci.com/gh/day8/re-frame-undo/tree/master.svg?style=shield&circle-token=:circle-ci-badge-token)](https://circleci.com/gh/day8/re-frame-undo/tree/master)
 
 
 ## Quick Start Guide
