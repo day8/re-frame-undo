@@ -8,7 +8,7 @@
                  [thheller/shadow-cljs "2.8.67" :scope "provided"]
                  [re-frame "0.10.9" :scope "provided"]]
 
-  :plugins [[lein-shadow "0.1.5"]]
+  :plugins [[lein-shadow "0.1.6"]]
 
   :profiles {:debug {:debug true}
              :dev   {:dependencies [[binaryage/devtools "0.9.10"]]
