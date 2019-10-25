@@ -6,10 +6,11 @@
 
 ## Undos in re-frame
 
-This library provides undo/redo capabilities for [re-frame](https://clojars.org/re-frame).
+This library provides undo/redo capabilities for [re-frame](https://github.com/day8/re-frame).
 
-[![GitHub license](https://img.shields.io/github/license/day8/re-frame-undo.svg)](license.txt)
-[![Circle CI](https://circleci.com/gh/day8/re-frame-undo/tree/master.svg?style=shield&circle-token=:circle-ci-badge-token)](https://circleci.com/gh/day8/re-frame-undo/tree/master)
+[![clojars](https://img.shields.io/clojars/v/day8.re-frame/undo.svg)](https://clojars.org/day8.re-frame/undo)
+[![license](https://img.shields.io/github/license/day8/re-frame-undo.svg)](license.txt)
+[![ci](https://github.com/day8/re-frame-undo/workflows/ci/badge.svg)](https://github.com/day8/re-frame-undo/actions?workflow=ci)
 
 
 ## Quick Start Guide
@@ -17,7 +18,7 @@ This library provides undo/redo capabilities for [re-frame](https://clojars.org/
 ### Step 1. Add Dependency
 
 Add the following project dependency: <br>
-[![Clojars Project](https://img.shields.io/clojars/v/day8.re-frame/undo.svg)](https://clojars.org/day8.re-frame/undo)
+[![clojars](https://img.shields.io/clojars/v/day8.re-frame/undo.svg)](https://clojars.org/day8.re-frame/undo)
 
 You'll also need re-frame >= 0.8.0
 
