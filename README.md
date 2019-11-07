@@ -4,6 +4,7 @@
 > -- Terry Pratchett, Going Postal
 
 [![CI](https://github.com/day8/re-frame-undo/workflows/ci/badge.svg)](https://github.com/day8/re-frame-undo/actions?workflow=ci)
+[![CD](https://github.com/day8/re-frame-undo/workflows/cd/badge.svg)](https://github.com/day8/re-frame-undo/actions?workflow=cd)
 [![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/day8/re-frame-undo?style=flat)](https://github.com/day8/re-frame-undo/tags)
 [![Clojars Project](https://img.shields.io/clojars/v/day8.re-frame/undo.svg)](https://clojars.org/day8.re-frame/undo)
 [![GitHub issues](https://img.shields.io/github/issues-raw/day8/re-frame-undo?style=flat)](https://github.com/day8/re-frame-undo/issues)
