@@ -19,12 +19,12 @@ the [ClojureScript mailing list](https://groups.google.com/forum/#!forum/clojure
 
 To build the tests and run them in one step, just:
 ```sh
-lein test-once  # compiles & then opens test.html in the browser
+lein ci  # compiles and runs tests in headless browser via Karma
 ```
 
 You can also get auto compiles via:
 ```sh
-lein test-auto
+lein watch
 ```
 but you'll need to manually open `test/test.html` in a browser. And you'll also need to
 manually reload this page after each auto compile.
@@ -36,8 +36,7 @@ If you're on Linux or Mac OS X then you will be fine, if you're on Windows then 
 Visual Studio Community Edition, and the C++ compiler dependencies.
 
 ```sh
-lein deps       # runs lein-npm, installs Karma & other node dependencies. Only needed the first time.
-lein karma-once # to build re-frame-async-flow-fx tests
+lein watch # to build re-frame-undo tests
 karma start     # to run the tests with an auto watcher
 ```
 

@@ -55,10 +55,11 @@
                           :compiler-options {:pretty-print true}
                           :output-to "target/karma-test.js"}}}
 
-  :aliases {"test-auto"   ["do"
-                           ["clean"]
-                           ["shadow" "watch" "browser-test"]]
-            "karma-once"  ["do"
-                           ["clean"]
-                           ["shadow" "compile" "karma-test"]
-                           ["shell" "karma" "start" "--single-run" "--reporters" "junit,dots"]]})
+  :aliases {"watch"   ["do"
+                       ["clean"]
+                       ["shadow" "watch" "browser-test" "karma-test"]]
+
+            "ci"  ["do"
+                   ["clean"]
+                   ["shadow" "compile" "karma-test"]
+                   ["shell" "karma" "start" "--single-run" "--reporters" "junit,dots"]]})
