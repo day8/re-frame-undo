@@ -28,10 +28,6 @@
   :source-paths   ["src"]
   :test-paths     ["test"]
 
-  :shell          {:commands {"open" {:windows ["cmd" "/c" "start"]
-                                      :macosx  "open"
-                                      :linux   "xdg-open"}}}
-  
   :deploy-repositories [["clojars" {:sign-releases false
                                     :url "https://clojars.org/repo"
                                     :username :env/CLOJARS_USERNAME
