@@ -55,6 +55,12 @@
                           :compiler-options {:pretty-print true}
                           :output-to "target/karma-test.js"}}}
 
+  :shell {:commands {"karma" {:windows         ["cmd" "/c" "karma"]
+                              :default-command "karma"}
+                     "open"  {:windows         ["cmd" "/c" "start"]
+                              :macosx          "open"
+                              :linux           "xdg-open"}}}
+  
   :aliases {"watch"   ["do"
                        ["clean"]
                        ["shadow" "watch" "browser-test" "karma-test"]]
