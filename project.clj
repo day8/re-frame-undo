@@ -7,11 +7,11 @@
                   :exclusions [com.google.javascript/closure-compiler-unshaded
                                org.clojure/google-closure-library
                                org.clojure/google-closure-library-third-party]]
-                 [thheller/shadow-cljs      "2.11.0" :scope "provided"]
+                 [thheller/shadow-cljs      "2.11.4" :scope "provided"]
                  [re-frame                  "1.1.1" :scope "provided"]]
 
   :plugins      [[day8/lein-git-inject "0.0.14"]
-                 [lein-shadow          "0.2.2"]]
+                 [lein-shadow          "0.3.1"]]
 
   :middleware   [leiningen.git-inject/middleware]
 

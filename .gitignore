@@ -16,5 +16,3 @@ pom.xml.asc
 .idea/
 /.shadow-cljs/
 /shadow-cljs.edn
-/package.json
-/package-lock.json
