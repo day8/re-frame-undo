@@ -22,7 +22,7 @@ This library provides undo/redo capabilities for [re-frame](https://github.com/d
 ### Step 1. Add Dependency
 
 Add the following project dependency: <br>
-[![clojars](https://img.shields.io/clojars/v/day8.re-frame/undo.svg)](https://clojars.org/day8.re-frame/undo)
+[![clojars](https://img.shields.io/clojars/v/day8.re-frame/undo?style=for-the-badge&logo=clojure&logoColor=fff)](https://clojars.org/day8.re-frame/undo)
 
 You'll also need re-frame >= 0.8.0
 
