@@ -66,12 +66,12 @@
 
 (defn store-now!
   "Stores the value currently in app-db, so the user can later undo"
-  [explanation]
+  [explanation db]
   (clear-redos!)
   (reset! undo-list
     (vec (take-last (max-undos)
            (conj @undo-list
-             [app-db ((:harvest-fn @config) app-db)]))))
+             [db ((:harvest-fn @config) db)]))))
   (reset! undo-explain-list
     (vec (take-last (max-undos)
            (conj @undo-explain-list
@@ -130,7 +130,7 @@
 
 
 (defn undo
-  [harvester reinstater undos cur redos]
+  [harvester reinstater undos redos]
   (let [u      @undos
         [db v] (last u)
         r      (cons [db (harvester db)] @redos)]
@@ -143,8 +143,8 @@
   "undo n steps or until we run out of undos"
   [n]
   (when (and (pos? n) (undos?))
-    (undo (:harvest-fn @config) (:reinstate-fn @config) undo-list app-db redo-list)
-    (undo deref reset! undo-explain-list app-explain redo-explain-list)
+    (undo (:harvest-fn @config) (:reinstate-fn @config) undo-list redo-list)
+    (undo deref reset! undo-explain-list redo-explain-list)
     (recur (dec n))))
 
 (defn undo-handler
@@ -155,7 +155,7 @@
   {}) ; work is done directly on app-db
 
 (defn redo
-  [harvester reinstater undos cur redos]
+  [harvester reinstater undos redos]
   (let [r      @redos
         [db v] (first r)
         u      (conj @undos [db (harvester db)])]
@@ -167,8 +167,8 @@
   "redo n steps or until we run out of redos"
   [n]
   (when (and (pos? n) (redos?))
-    (redo (:harvest-fn @config) (:reinstate-fn @config) undo-list app-db redo-list)
-    (redo deref reset! undo-explain-list app-explain redo-explain-list)
+    (redo (:harvest-fn @config) (:reinstate-fn @config) undo-list redo-list)
+    (redo deref reset! undo-explain-list redo-explain-list)
     (recur (dec n))))
 
 (defn redo-handler
@@ -199,10 +199,15 @@
      - a nil, in which case \"\" is recorded as the explanation
   "
   ([] (undoable nil))
-  ([explanation]
+  ([explanation] (undoable explanation app-db))
+  ([explanation db]
       (re-frame/->interceptor
         :id     :undoable
-        :after  (fn [context]
+        :before  (fn [context]
+                   (when-not (= db app-db)
+                     (store-now! explanation db))
+                   context)
+        :after (fn [context]
                   (let [event        (re-frame/get-coeffect context :event)
                         undo-effect  (re-frame/get-effect context :undo)
                         explanation (cond
@@ -213,7 +218,8 @@
                                       (string? explanation) explanation
                                       (nil? explanation)    ""
                                       :else (re-frame/console :error "re-frame-undo: \"undoable\" interceptor on event " event " given a bad parameter. Got: " explanation))]
-                    (store-now! explanation)
+                    (when (= db app-db)
+                      (store-now! explanation db))
                     (update context :effects dissoc :undo))))))   ;; remove any `:undo` effect. Already handled.
 
 
