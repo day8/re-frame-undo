@@ -68,14 +68,15 @@
   "Stores the value currently in app-db, so the user can later undo"
   [explanation]
   (clear-redos!)
-  (reset! undo-list (vec (take-last
-                           (max-undos)
-                           (conj @undo-list ((:harvest-fn @config) app-db)))))
-  (reset! undo-explain-list (vec (take-last
-                                   (max-undos)
-                                   (conj @undo-explain-list @app-explain))))
+  (reset! undo-list
+    (vec (take-last (max-undos)
+           (conj @undo-list
+             [app-db ((:harvest-fn @config) app-db)]))))
+  (reset! undo-explain-list
+    (vec (take-last (max-undos)
+           (conj @undo-explain-list
+             [app-explain @app-explain]))))
   (reset! app-explain explanation))
-
 
 (defn undos?
   "Returns true if undos exist, false otherwise"
@@ -91,7 +92,7 @@
   "Returns a vector of undo descriptions, perhaps empty"
   []
   (if (undos?)
-    (conj @undo-explain-list @app-explain)
+    (conj (mapv second @undo-explain-list) @app-explain)
     []))
 
 ;; -- subscriptions  -----------------------------------------------------------------------------
@@ -130,9 +131,10 @@
 
 (defn undo
   [harvester reinstater undos cur redos]
-  (let [u @undos
-        r (cons (harvester cur) @redos)]
-    (reinstater cur (last u))
+  (let [u      @undos
+        [db v] (last u)
+        r      (cons [db (harvester db)] @redos)]
+    (reinstater db v)
     (reset! redos r)
     (reset! undos (pop u))))
 
@@ -154,9 +156,10 @@
 
 (defn redo
   [harvester reinstater undos cur redos]
-  (let [u (conj @undos (harvester cur))
-        r  @redos]
-    (reinstater cur (first r))
+  (let [r      @redos
+        [db v] (first r)
+        u      (conj @undos [db (harvester db)])]
+    (reinstater db v)
     (reset! redos (rest r))
     (reset! undos u)))
 
