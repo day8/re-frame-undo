@@ -266,6 +266,32 @@ So this sort of flexibility is possible:
    :reinstate-fn (fn [ratom [v1 v2]] (reset! cache v1) (reset! ratom v2))})
 ```
 
+### Multiple client db's
+
+In certain situations, you may find yourself with an app with more than one `app-db`. While this is not typical of a re-frame app, there are certain situations where all of the state for whatever reason does not live in the same `app-db`. Undo/redo becomes more complicated in these situations, but can still be handled provided that:
+
+1. The event to be undone only affects one `app-db`.
+2. The affected `app-db` is known when the event is registered (i.e. when the `reg-event-db/fx` call is made).
+ 
+For these situtations, a second argument to `undoable` can be provided which specifies the `app-db` to capture the undo state from. The undo handler for such events will remember which `app-db` the state change corresponds to and will restore it to the appropriate one.
+
+```clj
+(def my-db (atom {:hello 1}))
+
+(reg-event-fx ::add-1-to-my-db
+  (undoable "Adding 1" my-db)   ;; Optional second arg is a ratom or derefable like the regular re-frame app-db
+  (fn [_ _]
+    (swap! my-db update :hello inc))))
+
+;;@my-db -> {:hello 1}
+(re-frame/dispatch-sync [::add-1-to-my-db])
+;;@my-db -> {:hello 2}
+(re-frame/dispatch-sync [:undo])
+;;@my-db -> {:hello 1}
+```
+
+When the second argument is not supplied, the undos only apply to the regular `app-db` as described above. 
+
 
 ### Further Configuration
 
