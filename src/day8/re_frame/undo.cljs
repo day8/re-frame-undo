@@ -227,15 +227,19 @@
 
 
 (defn register-events-subs!
-  []
-  (re-frame/reg-event-fx
+  ([] (register-events-subs! []))
+  ([interceptors]
+   (re-frame/reg-event-fx
     :undo                     ;; usage:  (dispatch [:undo n])  n is optional, defaults to 1
+    interceptors
     undo-handler)
-  (re-frame/reg-event-fx
+   (re-frame/reg-event-fx
     :redo                     ;; usage:  (dispatch [:redo n])
+    interceptors
     redo-handler)
-  (re-frame/reg-event-db
+   (re-frame/reg-event-db
     :purge-redos              ;; usage:  (dispatch [:purge-redos])
-    purge-redo-handler))
+    interceptors
+    purge-redo-handler)))
 
 (register-events-subs!)

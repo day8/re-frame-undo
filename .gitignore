@@ -16,3 +16,6 @@ pom.xml.asc
 .idea/
 /.shadow-cljs/
 /shadow-cljs.edn
+.clj-kondo/
+.lsp/
+resources/

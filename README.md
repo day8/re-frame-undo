@@ -303,6 +303,19 @@ function once, during startup:
 (day8.re-frame.undo/undo-config! {:max-undos 100})
 ```
 
+You might want to intercept the `:undo` and `:redo` events to run some custom code. You can inject re-frame interceptors that will be run when `:undo` and `:redo` events are dispatched. This too, is meant to be called once during app startup:
+
+```clj
+(day8.re-frame.undo/register-events-subs!
+  [(rf/->interceptor
+  :before (fn [ctx]
+            (println "access the context object here")
+            ctx))
+  (rf/->interceptor
+  :after (fn [ctx]
+           (println "access the context object here")
+           ctx))])
+```
 
 ### Fancy Explanations With `undoable`
 
